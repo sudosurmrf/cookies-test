@@ -36,7 +36,7 @@ const Register = () => {
   return (
     <>
     <input placeholder="email" value={userInfo.email} onChange={(e) => setUserInfo((prev) => ({...prev, email: e.target.value}))} />
-    <input placeholder="password" value={userInfo.password} onChange={(e) => setUserInfo((prev) => ({...prev, password: e.target.value}))} />
+    <input placeholder="password" type="password" value={userInfo.password} onChange={(e) => setUserInfo((prev) => ({...prev, password: e.target.value}))} />
     <input placeholder="first Name" value={userInfo.firstName} onChange={(e) => setUserInfo((prev) => ({...prev, firstName: e.target.value}))} />
 
     <button onClick={registerUser}>Register</button>
