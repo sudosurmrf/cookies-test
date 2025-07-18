@@ -10,7 +10,7 @@ const PORT = process.env.PORT;
 const app = express();
 
 
-app.use(cors({ origin: ['http://localhost:5173'], credentials: true}));
+app.use(cors({ origin: ['http://localhost:5173'], credentials: true }));
 
 app.use(cookieParser());
 
@@ -22,35 +22,35 @@ const verifyToken = async (req, res, next) => {
   // const token = Authorization.split(' ')[1];
 
   // const token = req.cookies.token
-  try{
+  try {
 
-    const {token} = req.cookies
+    const { token } = req.cookies
 
-    if(!token) return res.status(401).send('unauthorized!');
-    
+    if (!token) return res.status(401).send('unauthorized!');
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     if (!decoded) return res.status(401).send('not authed');
-    
+
     req.user = decoded;
     next();
-  }catch(err){
+  } catch (err) {
     console.log(err)
     return res.status(401).send('unauthorized!');
   }
 }
 
-app.get('/api/me', verifyToken, async(req,res,next) => {
-  
-  try{
-    const {user} = req;
+app.get('/api/me', verifyToken, async (req, res, next) => {
+
+  try {
+    const { user } = req;
     console.log(user);
 
-    if(!user) return res.status(401).send('not authed');
+    if (!user) return res.status(401).send('not authed');
 
-    res.json({message: 'user is authenticated using cookies and JWT', user});
+    res.json({ message: 'user is authenticated using cookies and JWT', user });
 
-  }catch(err){
+  } catch (err) {
     console.log(err);
     res.send('err with auth');
   }
@@ -83,26 +83,26 @@ app.post('/api/register', async (req, res, next) => {
 });
 
 
-app.post('/api/login', async(req,res,next) => {
+app.post('/api/login', async (req, res, next) => {
 
-  try{
-    const {email, password} = req.body;
+  try {
+    const { email, password } = req.body;
 
-    const {rows: [userAcc]} = await client.query(`SELECT * FROM users WHERE email = $1;`,[email]);
-    if(!userAcc) return res.status(404).send('no acc with that info');
+    const { rows: [userAcc] } = await client.query(`SELECT * FROM users WHERE email = $1;`, [email]);
+    if (!userAcc) return res.status(404).send('no acc with that info');
 
     const pwMatch = await bcrypt.compare(password, userAcc.password);
-    if(!pwMatch) return res.status(401).send('unauthed');
+    if (!pwMatch) return res.status(401).send('unauthed');
 
-    const token = jwt.sign({id: userAcc.id, name: userAcc.first_name}, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: userAcc.id, name: userAcc.first_name }, process.env.JWT_SECRET);
 
     res.cookie('token', token, {
       httpOnly: true,
       secure: true,
       sameSite: 'Strict',
       maxAge: 1000 * 60 * 5,
-    }).json({message: 'logged in!', user: userAcc});
-  }catch(err){
+    }).json({ message: 'logged in!', user: userAcc });
+  } catch (err) {
     console.log(err);
     return res.status(400).send('trouble logging in');
   }
